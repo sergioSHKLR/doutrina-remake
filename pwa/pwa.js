@@ -1,6 +1,6 @@
-/* Librus PWA | Cleaned V31-260620a — registration + update handling */
+/* Doutrina PWA | Cleaned V31-260620a — registration + update handling */
 (function () {
-  var APP_NAME = 'LIBRUS';
+  var APP_NAME = 'DOUTRINA';
   var APP_VERSION = 'v.31t';
   var BUILD_ID = 'v31-r84';
   var waitingWorker = null;
@@ -13,12 +13,12 @@
   function setUpdateAvailable(worker) {
     if (!worker) return;
     waitingWorker = worker;
-    dispatch('librus:pwa-update-available', { buildId: BUILD_ID });
+    dispatch('doutrina:pwa-update-available', { buildId: BUILD_ID });
   }
 
   function clearUpdateAvailable() {
     waitingWorker = null;
-    dispatch('librus:pwa-update-cleared');
+    dispatch('doutrina:pwa-update-cleared');
   }
 
   function watchWorker(worker) {
@@ -70,7 +70,7 @@
   });
 
   // Public API
-  window.LibrusPwa = {
+  window.DoutrinaPwa = {
     appName: APP_NAME,
     versionLabel: APP_VERSION,
     buildId: BUILD_ID,
