@@ -3,13 +3,13 @@ const CACHE_VERSION = 'librus-v31-r84';
 
 const SHELL_ASSETS = [
   './index.html',
-  './main.js',
-  './annotations.js',
-  './pwa.js',
-  './style.css',
+  './js/main.js',
+  './js/annotations.js',
+  './pwa/pwa.js',
+  './styles/style.css',
   './manifest.webmanifest',
-  './context-placeholder.html',
-  './map.html',
+  './pages/context-placeholder.html',
+  './pages/map.html',
   './fonts/MaterialSymbolsOutlined.woff2',
   './fonts/RobotoSlab-latin.woff2',
   './fonts/RobotoSlab-latin-ext.woff2',
@@ -19,7 +19,8 @@ const SHELL_ASSETS = [
   './icons/pwa/icon-192.png',
   './icons/pwa/icon-512.png',
   './icons/pwa/screenshot-wide.png',
-  './icons/pwa/screenshot-narrow.png'
+  './icons/pwa/screenshot-narrow.png',
+  './sw.js'   // if you copied it to root, otherwise remove or point to './pwa/sw.js'
 ];
 
 function stashInCache(cacheName, request, response) {

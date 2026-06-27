@@ -17,12 +17,12 @@ const READER_FONT_SCALE_MIN = READER_FONT_SCALE_CYCLE[0];
 const READER_FONT_SCALE_MAX = READER_FONT_SCALE_CYCLE[READER_FONT_SCALE_CYCLE.length - 1];
 const LIBRUS_SITE_URL = 'https://librus.app';
 const LIBRUS_SHARE_ATTRIBUTION = 'Shared from ' + LIBRUS_SITE_URL;
-const CONTEXT_PLACEHOLDER_URL = 'context-placeholder.html';
+const CONTEXT_PLACEHOLDER_URL = 'pages/context-placeholder.html';
 
 const DEFAULT_PROVIDERS = {
  wiki: 'https://en.wikipedia.org/w/index.php?search={query}',
  dictionary: 'https://en.wiktionary.org/w/index.php?search={query}',
- map: 'map.html?q={query}'
+ map: 'pages/map.html?q={query}'
 };
 
 const LEGACY_PROVIDER_URLS = {
