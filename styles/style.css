@@ -1,4 +1,4 @@
-/* CACHE BUST: 2025-06-27-v3 */
+/* CACHE BUST: 2025-06-27-v4 */
 
 /* =========================================================================
    SECTION 01: DESIGN TOKENS
@@ -156,29 +156,6 @@ body.theme--system {
    SECTION 02: FONTS — FIXED FOR YOUR TREE
    ========================================================================= */
 
-   .topbar .material-symbols-outlined,
-.topbar .icon-btn {
-   color: var(--topbar-icon-color) !important;
-}
-
-
-.library-toolbar-bg .material-symbols-outlined,
-#library-settings .toolbar .material-symbols-outlined,
-.reader-toc .toolbar .material-symbols-outlined,
-#reader-main-toolbar .material-symbols-outlined,
-.reader-context .toolbar .material-symbols-outlined,
-.reader-notes .toolbar .material-symbols-outlined,
-.library-grid-filter .material-symbols-outlined {
-   color: var(--toolbar-icon-color) !important;
-}
-
-/* Hover enhancement */
-.toolbar .icon-btn:hover:not(:disabled),
-.library-grid-filter .icon-btn:hover {
-   color: #111 !important;
-   background: rgba(0,0,0,0.08) !important;
-}
-
 /* Material Symbols */
 @font-face {
    font-family: 'Material Symbols Outlined';
@@ -188,7 +165,7 @@ body.theme--system {
    src: url('../fonts/MaterialSymbolsOutlined.woff2') format('woff2');
 }
 
-/* Roboto Slab - Main Prose */
+/* Roboto Slab */
 @font-face {
    font-family: 'Roboto Slab';
    font-style: normal;
@@ -207,7 +184,7 @@ body.theme--system {
    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-/* Zen Kurenaido - Notes handwriting */
+/* Zen Kurenaido */
 @font-face {
    font-family: 'Zen Kurenaido';
    font-style: normal;
@@ -240,13 +217,11 @@ body.theme--system {
    direction: ltr;
    -webkit-font-smoothing: antialiased;
    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-   color: var(--topbar-icon-color);
+   color: inherit;
 }
 
-
 /* =========================================================================
-   SECTION 03: RESET & BASE | V31-260617s/a
-   GLOBAL ELEMENT DEFAULTS
+   RESET & BASE
    ========================================================================= */
 *,
 *::before,
@@ -269,10 +244,12 @@ body {
    line-height: 1.5;
    height: 100%;
    overflow: hidden;
-   background: var(--bg-primary);
+   background: var(--bg-secondary);   /* prevent accent flash */
    color: var(--text-primary);
    transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
 }
+
+/* ... (keep the rest of your file as-is from SECTION 03 onward) ... */
 
 button,
 input,
@@ -916,8 +893,8 @@ textarea:focus-visible {
    text-align: center;
    padding: var(--padding-md);
    border: 0.0625rem solid var(--border-color);
-   background: var(--cover-bg);
-   color: var(--cover-fg, #1a1d21);
+   background: inherit;
+   color: var(--text-primary)
    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.12);
    overflow: hidden;
    transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
