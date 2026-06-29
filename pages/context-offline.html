@@ -13,13 +13,7 @@
   })();
  </script>
  <style>
-  @font-face {
-   font-family: 'Material Symbols Outlined';
-   font-style: normal;
-   font-weight: 100 700;
-   font-display: swap;
-   src: url('../fonts/MaterialSymbolsOutlined.woff2?v=260621e') format('woff2');
-  }
+
 
   html.theme--light {
    color-scheme: light;
@@ -67,15 +61,6 @@
    padding: 1rem 1rem 0.75rem;
    text-align: center;
    border-bottom: 0.0625rem solid var(--border-color);
-  }
-
-  .offline-ref-icon {
-   font-family: 'Material Symbols Outlined';
-   font-size: 2.75rem;
-   line-height: 1;
-   color: color-mix(in srgb, #c92a2a 78%, var(--text-muted) 22%);
-   opacity: 0.72;
-   font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 48;
   }
 
   .offline-ref-title {
@@ -150,9 +135,12 @@
 </head>
 
 <body>
+
  <div class="offline-ref">
   <header class="offline-ref-header">
-   <div class="offline-ref-icon" aria-hidden="true">&#xE2C1;</div>
+  <div class="offline-ref-icon" aria-hidden="true">
+  <img src="../icons/offline.svg" alt="Offline" width="48" height="48">
+</div>
    <p class="offline-ref-title" id="offline-ref-title">Offline — search in this book</p>
    <p class="offline-ref-subtitle" id="offline-ref-subtitle">No network. Showing passages from the open book.</p>
    <p class="offline-ref-query" id="offline-ref-query" hidden></p>
@@ -217,7 +205,7 @@
      btn.addEventListener('click', function () {
       if (window.parent && window.parent !== window) {
        window.parent.postMessage({
-        type: 'librus:offline-goto',
+        type: 'doutrina:offline-goto',
         sectionId: hit.sectionId || '',
         query: query,
         hitIndex: index
@@ -234,7 +222,7 @@
      return;
     }
     window.parent.postMessage({
-     type: 'librus:offline-lookup',
+     type: 'doutrina:offline-lookup',
      provider: provider,
      query: query
     }, location.origin);
@@ -242,7 +230,7 @@
 
    window.addEventListener('message', function (e) {
     if (e.origin !== location.origin) return;
-    if (!e.data || e.data.type !== 'librus:offline-lookup-results') return;
+    if (!e.data || e.data.type !== 'doutrina:offline-lookup-results') return;
     renderResults(e.data.hits || []);
    });
 

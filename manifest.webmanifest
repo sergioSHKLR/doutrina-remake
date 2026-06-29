@@ -1,15 +1,15 @@
 {
   "id": "./",
-  "name": "DOUTRINA",
-  "short_name": "DOUTRINA",
+  "name": "LIBRUS",
+  "short_name": "LIBRUS",
   "description": "A lightweight digital reading workspace with a local markdown library.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#432109",
-  "theme_color": "#432109",
-  "lang": "pt-BR",
+  "background_color": "#ffffff",
+  "theme_color": "#2E8B57",
+  "lang": "en-US",
   "icons": [
     {
       "src": "pwa/icon-192.png",

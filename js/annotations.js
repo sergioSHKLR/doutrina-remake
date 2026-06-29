@@ -1,7 +1,7 @@
 /* Librus Annotations | V31-260618t/u — Web Annotation scaffold (local-first). */
 (function (global) {
  var WA_CONTEXT = 'http://www.w3.org/ns/anno.jsonld';
- var STORAGE_KEY = 'librus_v31_annotations';
+ var STORAGE_KEY = 'doutrina_v31_annotations';
  var PREFIX_LEN = 32;
  var SUFFIX_LEN = 32;
 
@@ -33,7 +33,7 @@
   var link = document.querySelector('link[rel="canonical"]');
   var base = link && link.href
    ? link.href.replace(/\/$/, '')
-   : 'https://librus.app';
+   : 'https://doutrina.app';
   return base + '/books/' + encodeURIComponent(bookId) + '.md';
  }
 
@@ -260,7 +260,7 @@
   };
  }
 
- var HIGHLIGHT_REGISTRY = 'librus-annotations';
+ var HIGHLIGHT_REGISTRY = 'doutrina-annotations';
 
  function clearHighlights() {
   if (!global.CSS || !global.CSS.highlights) return;

@@ -3,11 +3,12 @@
 /* =========================================================================
    SECTION 01: DESIGN TOKENS
    ========================================================================= */
+
 :root {
    color-scheme: light;
 
    /* === THEME BASE - CHANGE THIS ONE LINE TO RE-THEME THE APP === */
-   --theme-base: dodgerblue;
+   --theme-base: #004D99;
 
    --bg-primary: var(--theme-base);
    --bg-secondary: #ffffff;
@@ -46,10 +47,10 @@
    --padding-xl: 1.5rem;
 
    --topbar-height: 3.375rem;
-   --btn-size: 3.125rem;
-   --btn-size-sm: 2.25rem;
-   --icon-btn-glyph-size: 1.5rem;
-   --icon-btn-glyph-size-sm: 1.375rem;
+  --btn-size: 3.5rem;           /* larger icon buttons */
+   --btn-size-sm: 2.75rem;
+   --icon-btn-glyph-size: 1.75rem;
+   --icon-btn-glyph-size-sm: 1.5rem;
 
    --toc-width: 18.75rem;
    --toc-inset-inline: 0.625rem;
@@ -133,6 +134,21 @@ body.theme--system {
    --library-toolbar-fg: #eef1f3;
    --toolbar-icon-color: #f1f3f5;
 
+   /* Library grid dark */
+   .library-grid {
+      background: #1e1e1e;
+   }
+
+   .library-grid-card {
+      background: #2a2a2a;
+      border: 1px solid #444;
+   }
+
+   .library-grid-cover {
+      background: #333;
+      color: #ddd;
+   }
+
    --panel-yellow-accent: #fab005;
    --panel-toc-bg: color-mix(in srgb, var(--library-toolbar-bg) 26%, var(--bg-secondary) 74%);
    --panel-toc-hover: color-mix(in srgb, var(--panel-toc-bg) 68%, var(--library-toolbar-bg) 32%);
@@ -141,29 +157,13 @@ body.theme--system {
 }
 
 /* Topbar icons */
-.topbar .material-symbols-outlined,
 .topbar .icon-btn {
    color: var(--topbar-icon-color) !important;
-}
-
-/* Panel toolbar icons */
-.toolbar .material-symbols-outlined,
-.library-grid-filter .material-symbols-outlined {
-   color: var(--toolbar-icon-color) !important;
 }
 
 /* =========================================================================
    SECTION 02: FONTS — FIXED FOR YOUR TREE
    ========================================================================= */
-
-/* Material Symbols */
-@font-face {
-   font-family: 'Material Symbols Outlined';
-   font-style: normal;
-   font-weight: 100;
-   font-display: swap;
-   src: url('../fonts/MaterialSymbolsOutlined.woff2') format('woff2');
-}
 
 /* Roboto Slab */
 @font-face {
@@ -203,26 +203,10 @@ body.theme--system {
    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-.material-symbols-outlined {
-   font-family: 'Material Symbols Outlined';
-   font-weight: 100;
-   font-style: normal;
-   font-size: 1.25rem;
-   line-height: 1;
-   letter-spacing: normal;
-   text-transform: none;
-   display: inline-block;
-   white-space: nowrap;
-   word-wrap: normal;
-   direction: ltr;
-   -webkit-font-smoothing: antialiased;
-   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-   color: inherit;
-}
-
 /* =========================================================================
    RESET & BASE
    ========================================================================= */
+
 *,
 *::before,
 *::after {
@@ -324,10 +308,6 @@ select {
    display: none;
 }
 
-.input-clear-btn .material-symbols-outlined {
-   font-size: 1.125rem;
-}
-
 input:focus,
 select:focus,
 textarea:focus {
@@ -358,6 +338,7 @@ textarea:focus-visible {
    SECTION 04: UTILITIES & STATE | V31-260617s/a
    SHARED STATE CLASSES AND SCREEN-READER ONLY
    ========================================================================= */
+
 .u-sr-only {
    position: absolute !important;
    width: 0.0625rem !important;
@@ -421,6 +402,7 @@ textarea:focus-visible {
    SECTION 05: ICON-BTN & BTN-WIDE | V31-260617s/r
    CHROME BUTTONS AND WIDE CTA
    ========================================================================= */
+
 .icon-btn {
    width: var(--btn-size);
    height: var(--btn-size);
@@ -434,10 +416,12 @@ textarea:focus-visible {
    transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
 }
 
-.icon-btn .material-symbols-outlined {
-   font-size: var(--icon-btn-glyph-size);
-   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+.icon-btn-glyph {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
 }
+
 
 .icon-btn .icon-glyph-filled {
    font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
@@ -498,6 +482,7 @@ textarea:focus-visible {
    SECTION 06: APP SHELL & VIEW | V31-260617s/a
    ROOT GRID AND VIEW CONTAINERS
    ========================================================================= */
+
 .app {
    display: grid;
    grid-template-rows: auto;
@@ -519,6 +504,7 @@ textarea:focus-visible {
    SECTION 07: TOPBAR & TOOLBAR | V31-260617s/j
    HEADER CHROME AND SLOT LAYOUT
    ========================================================================= */
+
 .topbar,
 .toolbar {
    display: flex !important;
@@ -629,11 +615,6 @@ textarea:focus-visible {
    transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
 }
 
-.context-split-search-btn .material-symbols-outlined {
-   font-size: var(--icon-btn-glyph-size);
-   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-}
-
 .context-split-search-btn:hover:not(:disabled) {
    background: color-mix(in srgb, currentColor 14%, transparent);
 }
@@ -689,18 +670,9 @@ textarea:focus-visible {
    cursor: pointer;
 }
 
-.context-provider-option .material-symbols-outlined {
-   font-size: 1.25rem;
-   color: var(--text-muted);
-}
-
 .context-provider-option:hover:not(:disabled),
 .context-provider-option.is-active {
    background: color-mix(in srgb, var(--accent-color) 10%, transparent);
-}
-
-.context-provider-option.is-active .material-symbols-outlined {
-   color: var(--text-primary);
 }
 
 .context-provider-option:disabled {
@@ -716,6 +688,7 @@ textarea:focus-visible {
    SECTION 08: LIBRARY-TOPBAR BRAND | V31-260617s/o
    BRAND LOGO AND TITLE
    ========================================================================= */
+
 .library-topbar-brand {
    display: flex;
    align-items: center;
@@ -728,8 +701,8 @@ textarea:focus-visible {
    flex-shrink: 0;
    display: block;
    background-color: var(--topbar-fg);
-   -webkit-mask: url('/icons/brand.svg') center / contain no-repeat;
-   mask: url('/icons/brand.svg') center / contain no-repeat;
+   -webkit-mask: url('../icons/brand.svg') center / contain no-repeat;
+   mask: url('../icons/brand.svg') center / contain no-repeat;
 }
 
 .library-topbar-brand-title {
@@ -759,6 +732,7 @@ textarea:focus-visible {
    SECTION 09: DROPDOWN | V31-260617s/a
    THEME SELECTOR MENUS
    ========================================================================= */
+
 .dropdown-container {
    position: relative;
    display: inline-block;
@@ -799,6 +773,7 @@ textarea:focus-visible {
    SECTION 10: LIBRARY-BODY | V31-260617s/d
    FILTER ROW, BOOK GRID, 6:9 AUTHOR-MATCHED COVERS
    ========================================================================= */
+
 .library-body {
    display: grid;
    grid-template-rows: auto 1fr;
@@ -901,7 +876,6 @@ textarea:focus-visible {
 }
 
 .library-grid-card:hover .library-grid-cover {
-   border-color: var(--accent-color);
    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.16);
 }
 
@@ -915,7 +889,7 @@ textarea:focus-visible {
    line-height: 1.2;
    color: var(--cover-fg, #1a1d21);
    display: -webkit-box;
-   -webkit-line-clamp: 4;
+   line-clamp: 4;
    -webkit-box-orient: vertical;
    overflow: hidden;
 }
@@ -930,7 +904,7 @@ textarea:focus-visible {
    font-weight: 500;
    color: color-mix(in srgb, var(--cover-fg, #1a1d21) 72%, var(--text-muted));
    display: -webkit-box;
-   -webkit-line-clamp: 2;
+   line-clamp: 2;
    -webkit-box-orient: vertical;
    overflow: hidden;
 }
@@ -961,6 +935,7 @@ textarea:focus-visible {
    SECTION 11: LIBRARY-SETTINGS | V31-260617s/q
    OVERLAY SIDEPANEL — THEME, PROVIDERS, OFF-LOAD
    ========================================================================= */
+
 .library-settings-toolbar-start {
    flex: 1;
    display: flex;
@@ -1208,6 +1183,7 @@ textarea:focus-visible {
    SECTION 12: READER SHELL | V31-260617s/h
    READER GRID AND LAYOUT WRAPPER
    ========================================================================= */
+
 .reader {
    display: grid;
    grid-template-rows: auto 1fr;
@@ -1230,6 +1206,7 @@ textarea:focus-visible {
    SECTION 13: READER COLUMNS | V31-260619a/r
    TOC, MAIN, CONTEXT, NOTES COLUMN GRIDS
    ========================================================================= */
+
 .reader-toc,
 .reader-main,
 .reader-context,
@@ -1412,6 +1389,7 @@ textarea:focus-visible {
    SECTION 14: READER-TOC | V31-260617s/a
    TOC FILTER AND LINK LIST
    ========================================================================= */
+
 .reader-toc-filter {
    display: flex;
    align-items: center;
@@ -1460,6 +1438,7 @@ textarea:focus-visible {
    SECTION 15: READER-MAIN SEARCH | V31-260619a/e
    FIXED FIELD (DESKTOP), FLEX FILL (MOBILE), HIT NAV
    ========================================================================= */
+
 .reader-main-search {
    display: flex;
    align-items: center;
@@ -1550,6 +1529,7 @@ mark.reader-search-hit.is-current {
    SECTION 16: READER-CONTENT TYPOGRAPHY | V31-260619a/s
    WIKIPEDIA-STYLE PROSE COLUMN — MAX WIDTH, CONSISTENT MARGINS
    ========================================================================= */
+
 .reader-content {
    max-width: var(--reader-prose-max-width);
    margin-inline: auto;
@@ -1768,6 +1748,7 @@ mark.reader-search-hit.is-current {
    SECTION 17: READER-NOTES | V31-260618t/t
    WEB ANNOTATION PANEL, HIGHLIGHTS, COMPOSE
    ========================================================================= */
+
 .reader-notes-filter {
    display: flex;
    align-items: center;
@@ -2015,6 +1996,7 @@ mark.reader-search-hit.is-current {
    SECTION 18: TOOLBAR SHADOW | V31-260619a/i
    LIBRARY + READER TOOLBARS — NO BOTTOM BORDER, SUBTLE DROP SHADOW
    ========================================================================= */
+
 .library-grid-filter,
 .library-settings-toolbar,
 #library-settings .toolbar,
@@ -2032,6 +2014,7 @@ mark.reader-search-hit.is-current {
    SECTION 19: RESPONSIVE LAYOUT MATRICES | V31-260617s/b
    BREAKPOINT GRID TOPOLOGY (1536 / 1200 / 768)
    ========================================================================= */
+
 @media (min-width: 96rem) {
    .reader-layout {
       grid-template-columns: var(--toc-width) minmax(0, 1fr) minmax(0, 1fr) minmax(0, var(--notes-width));
@@ -2227,6 +2210,7 @@ mark.reader-search-hit.is-current {
    SECTION 20: MOBILE REFINEMENTS | V31-260617s/j
    NARROW VIEWPORT (~511 × 1031) — LIBRARY, READER, OVERLAYS
    ========================================================================= */
+   
 @media (max-width: 48rem) {
    .library-grid-card:nth-child(n + 5) {
       content-visibility: auto;
@@ -2436,4 +2420,15 @@ mark.reader-search-hit.is-current {
 }
 .reader #read-settings-btn {
    display: none !important;
+}
+
+/* Topbar SVGs */
+.topbar img[role="img"],
+.topbar .icon-btn img {
+  filter: invert(1); /* Light icons on dark topbar */
+}
+
+body.theme--light .topbar img[role="img"],
+body.theme--light .topbar .icon-btn img {
+  filter: invert(1); /* Dark icons on light topbar */
 }

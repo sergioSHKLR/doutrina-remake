@@ -2,10 +2,10 @@
 // V31-260617s/a | SECTION 01: CONSTANTS
 // STORAGE KEYS, MANIFEST PATH, DEFAULT PROVIDERS
 // =========================================================================
-const SESSION_STORAGE_KEY = 'librus_v31_session';
-const TAB_SESSION_KEY = 'librus_v31_tab_active';
-const SETTINGS_STORAGE_KEY = 'librus_v31_settings';
-const UPLOADS_STORAGE_KEY = 'librus_v31_uploads';
+const SESSION_STORAGE_KEY = 'doutrina_v31_session';
+const TAB_SESSION_KEY = 'doutrina_v31_tab_active';
+const SETTINGS_STORAGE_KEY = 'doutrina_v31_settings';
+const UPLOADS_STORAGE_KEY = 'doutrina_v31_uploads';
 const MANIFEST_URL = 'books/manifest.json';
 const BOOKS_BASE = 'books/';
 /* Dev ships the full manifest (60 books). Prod uses an empty manifest. No partial fallback. */
@@ -15,7 +15,7 @@ const SCROLL_HIDE_OFFSET = 40;
 const READER_FONT_SCALE_CYCLE = [0.8125, 0.875, 0.9375, 1, 1.0625, 1.125, 1.1875, 1.25];
 const READER_FONT_SCALE_MIN = READER_FONT_SCALE_CYCLE[0];
 const READER_FONT_SCALE_MAX = READER_FONT_SCALE_CYCLE[READER_FONT_SCALE_CYCLE.length - 1];
-const LIBRUS_SITE_URL = 'https://librus.app';
+const LIBRUS_SITE_URL = 'https://doutrina.app';
 const LIBRUS_SHARE_ATTRIBUTION = 'Shared from ' + LIBRUS_SITE_URL;
 const CONTEXT_PLACEHOLDER_URL = 'pages/context-placeholder.html';
 
@@ -99,6 +99,8 @@ let lastNotesSectionId = '';
 let currentBookAnnotations = [];
 let notesReplyParentId = null;
 let notesFilterQuery = '';
+let libraryDirectoryHandle = null;
+const LIBRARY_DIR_KEY = 'doutrina_library_dir';
 const NOTES_COMPOSE_PLACEHOLDER = 'Select text, then save as Highlight OR Write note';
 const NOTES_COMPOSE_WITH_QUOTE_PLACEHOLDER = 'Select text, then save as Note';
 const NOTES_REPLY_PLACEHOLDER = 'Reply to selected note…';
@@ -244,19 +246,11 @@ function syncContextPlaceholderConnectivity() {
  try {
   if (frame.contentWindow) {
    frame.contentWindow.postMessage({
-    type: 'librus:connectivity',
+    type: 'doutrina:connectivity',
     online: navigator.onLine
    }, window.location.origin);
   }
  } catch (e) { /* cross-origin or not ready */ }
-}
-
-function syncFaviconForTheme() {
- var theme = resolvedAppTheme();
- var href = theme === 'dark' ? 'icons/favicon-dark.svg' : 'icons/favicon-light.svg';
- document.querySelectorAll('link[rel="icon"][type="image/svg+xml"]').forEach(function (link) {
-  link.href = href;
- });
 }
 
 function changeTheme(themeValue, skipPersist) {
@@ -265,7 +259,6 @@ function changeTheme(themeValue, skipPersist) {
  settings.theme = themeValue;
  var sel = document.getElementById('settings-theme-selector');
  if (sel) sel.value = themeValue;
- syncFaviconForTheme();
  var frame = document.getElementById('context-viewport');
  if (frame && isContextPlaceholderUrl(frame.src || '')) {
   frame.src = contextPlaceholderUrl();
@@ -311,7 +304,7 @@ function switchView(viewId) {
 function syncSettingsOverlayChrome() {
  var panel = document.getElementById('library-settings');
  var backdrop = document.getElementById('settings-overlay-backdrop');
- var app = document.getElementById('librus-app');
+ var app = document.getElementById('doutrina-app');
  var open = panel && !panel.classList.contains('is-hidden') && panel.classList.contains('is-overlay');
  var overlayLayout = isReaderOverlayLayout();
  if (app) app.classList.toggle('has-settings-overlay', !!open && overlayLayout);
@@ -435,7 +428,7 @@ function downloadJson(filename, data) {
 }
 
 function exportCatalog() {
- downloadJson('librus-catalog.json', {
+ downloadJson('doutrina-catalog.json', {
   exported: new Date().toISOString(),
   books: books.map(function (b) {
    return { id: b.id, title: b.title, author: b.author, source: b.source, path: b.path || null };
@@ -445,7 +438,7 @@ function exportCatalog() {
 }
 
 function exportSessionSnapshot() {
- downloadJson('librus-session.json', {
+ downloadJson('doutrina-session.json', {
   exported: new Date().toISOString(),
   lastOpenedBookId: lastOpenedBookId,
   settings: settings,
@@ -562,33 +555,42 @@ function chronologyFromFrontmatter(meta) {
 }
 
 function parseBookMeta(filename, text) {
- var id = slugFromFilename(filename);
- var title = titleFromSlug(id);
- var author = 'Unknown Author';
- var parsed = parseFrontmatter(text);
- var body = parsed.body;
- var meta = parsed.meta;
- if (meta.title) title = sanitizeDisplayTitle(meta.title);
- else {
-  var h1 = body.match(/^#\s+(.+)$/m);
-  var h2 = body.match(/^##\s+(.+)$/m);
-  if (h1) title = sanitizeDisplayTitle(h1[1].trim());
-  else if (h2) title = sanitizeDisplayTitle(h2[1].trim());
- }
- author = meta.author || inferAuthorFromBody(body, id);
- var cover = coverStyleFromFrontmatter(meta);
- var order = chronologyFromFrontmatter(meta);
- return {
-  id: id,
-  title: title,
-  author: author,
-  subtitle: meta.subtitle || '',
-  lang: meta.lang || meta.language || '',
-  order: order,
-  coverBg: cover ? cover.bg : '',
-  coverFg: cover ? cover.fg : '',
-  body: body
- };
+  var id = slugFromFilename(filename);
+  var title = titleFromSlug(id);
+  var author = 'Unknown Author';
+  
+  var parsed = parseFrontmatter(text);
+  var body = parsed.body;
+  var meta = parsed.meta;
+
+  if (meta.title) {
+    title = sanitizeDisplayTitle(meta.title);
+  } else {
+    var h1 = body.match(/^#\s+(.+)$/m);
+    var h2 = body.match(/^##\s+(.+)$/m);
+    if (h1) title = sanitizeDisplayTitle(h1[1].trim());
+    else if (h2) title = sanitizeDisplayTitle(h2[1].trim());
+  }
+
+  author = meta.author || inferAuthorFromBody(body, id);
+  var cover = coverStyleFromFrontmatter(meta);
+  var order = chronologyFromFrontmatter(meta);
+
+  // NEW: Support for colored spine
+  var coverColor = meta.color || meta.cover_color || meta.covercolor || '#1e2a24';
+
+  return {
+    id: id,
+    title: title,
+    author: author,
+    subtitle: meta.subtitle || '',
+    lang: meta.lang || meta.language || '',
+    order: order,
+    coverBg: cover ? cover.bg : '',
+    coverFg: cover ? cover.fg : '',
+    coverColor: coverColor,        // ← NEW
+    body: body
+  };
 }
 
 function applyParsedBookMeta(book, parsed) {
@@ -689,24 +691,21 @@ function manifestIndexForBook(book) {
 }
 
 function stubBookFromFilename(filename, manifestIndex) {
- var id = slugFromFilename(filename);
- var entry = manifestEntryForFile(filename) || {};
- var author = entry.author || (/^adv_/i.test(id) ? 'Arthur Conan Doyle' : 'Unknown Author');
- var book = {
-  id: id,
-  title: entry.title || titleFromSlug(id),
-  author: author,
-  subtitle: entry.subtitle || '',
-  lang: entry.lang || '',
-  order: manifestOrderFromEntry(entry),
-  manifestIndex: manifestIndex != null ? manifestIndex : null,
-  coverBg: entry.coverBg || '',
-  coverFg: entry.coverFg || '',
-  path: BOOKS_BASE + filename,
-  source: 'bundled',
-  content: null
- };
- return applyCoverStyleToBook(book);
+  var id = slugFromFilename(filename);
+  var entry = manifestEntryForFile(filename) || {};
+  
+  var book = {
+    id: id,
+    title: entry.title || titleFromSlug(id),
+    author: entry.author || 'Allan Kardec',
+    color: entry.color || '#1e2a24',           // ← Make sure this is here
+    coverColor: entry.color || '#1e2a24',      // ← Add this
+    order: manifestOrderFromEntry(entry),
+    path: BOOKS_BASE + filename,
+    source: 'bundled',
+    content: null
+  };
+  return book;
 }
 
 async function scanBookStubs() {
@@ -725,16 +724,23 @@ function bundledBooksSignature(scanned) {
 }
 
 async function hydrateBook(book) {
- if (!book || book.content || !book.path) return book;
- var filename = book.path.split('/').pop();
- var res = await fetch(book.path);
- if (!res.ok) throw new Error('book fetch failed: ' + book.path);
- var text = await res.text();
- var meta = parseBookMeta(filename, text);
- book.content = meta.body;
- applyParsedBookMeta(book, meta);
- return book;
+  if (!book || book.content || !book.path) return book;
+  var filename = book.path.split('/').pop();
+  try {
+    var res = await fetch(book.path, { cache: 'reload' });
+    if (!res.ok) throw new Error('book fetch failed: ' + book.path + ' (' + res.status + ')');
+    var text = await res.text();
+    var meta = parseBookMeta(filename, text);
+    book.content = meta.body;
+    applyParsedBookMeta(book, meta);
+    book.coverColor = meta.coverColor || book.coverColor || '#1e2a24';  // ensure it survives
+    return book;
+  } catch (e) {
+    console.error('hydrateBook failed', e);
+    throw e;
+  }
 }
+
 
 function revalidateLibraryManifest() {
  scanBookStubs().then(function (scanned) {
@@ -810,70 +816,77 @@ function findBookById(id) {
 // 6:9 COVERS, AUTHOR-MATCHED COLORS, DELETE CONTROL, FILTER
 // =========================================================================
 function renderLibraryGrid() {
- var grid = document.getElementById('book-grid');
- var empty = document.getElementById('library-grid-empty');
- var visible = getVisibleBooks();
- grid.innerHTML = '';
- if (!visible.length) {
-  empty.classList.remove('is-hidden');
-  return;
- }
- empty.classList.add('is-hidden');
- visible.forEach(function (book) {
-  var card = document.createElement('article');
-  card.className = 'library-grid-card';
-  card.dataset.bookId = book.id;
-  card.setAttribute('tabindex', '0');
+  var grid = document.getElementById('book-grid');
+  var empty = document.getElementById('library-grid-empty');
+  var visible = getVisibleBooks();
+  grid.innerHTML = '';
+  if (!visible.length) {
+    empty.classList.remove('is-hidden');
+    return;
+  }
+  empty.classList.add('is-hidden');
 
-  var cover = document.createElement('div');
-  cover.className = 'library-grid-cover';
-  cover.style.setProperty('--cover-bg', COVER_STYLE_CARD.bg);
-  cover.style.setProperty('--cover-fg', COVER_STYLE_CARD.fg);
+  visible.forEach(function (book) {
+    var card = document.createElement('article');
+    card.className = 'library-grid-card';
+    card.dataset.bookId = book.id;
+    card.setAttribute('tabindex', '0');
 
-  var titleId = 'book-title-' + book.id.replace(/[^a-z0-9_-]/gi, '-');
-  var authorId = 'book-author-' + book.id.replace(/[^a-z0-9_-]/gi, '-');
+var cover = document.createElement('div');
+cover.className = 'library-grid-cover';
 
-  var titleEl = document.createElement('span');
-  titleEl.className = 'library-grid-cover-title';
-  titleEl.id = titleId;
-  titleEl.textContent = sanitizeDisplayTitle(book.title);
+// NEW: Use coverColor from manifest / book
+const spineColor = book.coverColor || '#1e2a24';
+cover.style.background = `linear-gradient(to right, ${spineColor} 14px, #f5f0e8 14px)`;
+cover.style.borderLeft = `14px solid ${spineColor}`;
 
-  var authorEl = document.createElement('span');
-  authorEl.className = 'library-grid-cover-author';
-  authorEl.id = authorId;
-  authorEl.textContent = book.author;
+cover.style.setProperty('--cover-fg', book.coverFg || '#1a1d21');
 
-  card.setAttribute('aria-labelledby', titleId + ' ' + authorId);
+    var titleId = 'book-title-' + book.id.replace(/[^a-z0-9_-]/gi, '-');
+    var authorId = 'book-author-' + book.id.replace(/[^a-z0-9_-]/gi, '-');
 
-  cover.appendChild(titleEl);
-  cover.appendChild(authorEl);
+    var titleEl = document.createElement('span');
+    titleEl.className = 'library-grid-cover-title';
+    titleEl.id = titleId;
+    titleEl.textContent = sanitizeDisplayTitle(book.title);
 
-  var deleteBtn = document.createElement('button');
-  deleteBtn.type = 'button';
-  deleteBtn.className = 'icon-btn library-grid-delete';
-  deleteBtn.title = 'Remove from library';
-  deleteBtn.setAttribute('aria-label', 'Remove ' + book.title + ' from library');
-  deleteBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">&#xE872;</span>';
-  deleteBtn.addEventListener('click', function (e) {
-   e.stopPropagation();
-   if (book.source === 'upload') {
-    removeUploadedBook(book.id);
-   } else {
-    hideBook(book.id);
-   }
+    var authorEl = document.createElement('span');
+    authorEl.className = 'library-grid-cover-author';
+    authorEl.id = authorId;
+    authorEl.textContent = book.author;
+
+    card.setAttribute('aria-labelledby', titleId + ' ' + authorId);
+
+    cover.appendChild(titleEl);
+    cover.appendChild(authorEl);
+
+    var deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'icon-btn library-grid-delete';
+    deleteBtn.title = 'Remove from library';
+    deleteBtn.setAttribute('aria-label', 'Remove ' + book.title + ' from library');
+
+    var deleteImg = document.createElement('img');
+    deleteImg.src = 'icons/delete.svg';
+    deleteImg.alt = 'Delete';
+    deleteImg.setAttribute('aria-hidden', 'true');
+    deleteImg.setAttribute('role', 'img');
+    deleteImg.width = 20;
+    deleteImg.height = 20;
+
+    deleteBtn.appendChild(deleteImg);
+
+    card.appendChild(cover);
+    card.appendChild(deleteBtn);
+    card.addEventListener('click', function () { openBookById(book.id); });
+    card.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openBookById(book.id);
+      }
+    });
+    grid.appendChild(card);
   });
-
-  card.appendChild(cover);
-  card.appendChild(deleteBtn);
-  card.addEventListener('click', function () { openBookById(book.id); });
-  card.addEventListener('keydown', function (e) {
-   if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    openBookById(book.id);
-   }
-  });
-  grid.appendChild(card);
- });
 }
 
 function removeUploadedBook(bookId) {
@@ -1083,16 +1096,18 @@ function renderMdFootnotes() {
 }
 
 function renderMdBlock(type, title, lines) {
- var body = renderMdBlockLines(lines);
- if (type === 'expand') {
-  return '<details class="md-block md-block--expand">' +
-   '<summary><span class="md-block-expand-icon material-symbols-outlined" aria-hidden="true">\uE313</span>' +
-   '<span class="md-block-expand-label">' + parseInlineMarkdown(title || 'More') + '</span></summary>' +
-   '<div class="md-block-body">' + body + '</div></details>';
- }
- var titleHtml = title ? '<p class="md-block-title">' + parseInlineMarkdown(title) + '</p>' : '';
- return '<div class="md-block md-block--' + escapeHtml(type) + '">' + titleHtml +
-  '<div class="md-block-body">' + body + '</div></div>';
+  var body = renderMdBlockLines(lines);
+  if (type === 'expand') {
+    return '<details class="md-block md-block--expand">' +
+      '<summary>' +
+      '<img src="/icons/expand.svg" alt="Expand" aria-hidden="true" class="md-block-expand-icon" width="24" height="24">' +
+      '<span class="md-block-expand-label">' + parseInlineMarkdown(title || 'More') + '</span>' +
+      '</summary>' +
+      '<div class="md-block-body">' + body + '</div></details>';
+  }
+  var titleHtml = title ? '<p class="md-block-title">' + parseInlineMarkdown(title) + '</p>' : '';
+  return '<div class="md-block md-block--' + escapeHtml(type) + '">' + titleHtml +
+    '<div class="md-block-body">' + body + '</div></div>';
 }
 
 function isSkippableComment(trimmed) {
@@ -1868,7 +1883,7 @@ function postMapPlaceToFrame(hit, query) {
  if (!frame || !frame.contentWindow || !hit) return;
  try {
   frame.contentWindow.postMessage({
-   type: 'librus:map-place',
+   type: 'doutrina:map-place',
    query: query || '',
    lat: parseFloat(hit.lat),
    lon: parseFloat(hit.lon),
@@ -2372,16 +2387,16 @@ function updateContextLookupControls() {
 
  if (providerToggle) providerToggle.disabled = contextLoadingActive;
 
- if (reloadBtn && reloadIcon) {
+if (reloadBtn && reloadIcon) {
   reloadBtn.disabled = false;
   if (contextLoadingActive) {
    reloadBtn.classList.add('is-stop');
-   reloadIcon.textContent = '\uE5CD';
+   reloadIcon.innerHTML = '<img src="../icons/close.svg" alt="Stop" aria-hidden="true" width="24" height="24">';
    reloadBtn.title = 'Stop loading';
    reloadBtn.setAttribute('aria-label', 'Stop loading');
   } else {
    reloadBtn.classList.remove('is-stop');
-   reloadIcon.textContent = '\uE5D5';
+   reloadIcon.innerHTML = '<img src="../icons/refresh.svg" alt="Reload" aria-hidden="true" width="24" height="24">';
    reloadBtn.title = 'Reload reference';
    reloadBtn.setAttribute('aria-label', 'Reload reference');
   }
@@ -2408,6 +2423,7 @@ function bindSettingsListeners() {
  document.getElementById('settings-export-catalog-btn').addEventListener('click', exportCatalog);
  document.getElementById('settings-export-session-btn').addEventListener('click', exportSessionSnapshot);
  document.getElementById('settings-clear-cache-btn').addEventListener('click', clearLocalCache);
+ document.getElementById('settings-choose-folder-btn').addEventListener('click', chooseLibraryFolder);
 }
 
 function bindLibraryListeners() {
@@ -2569,7 +2585,7 @@ function bindDocumentListeners() {
  });
  window.addEventListener('message', function (event) {
   if (event.origin !== window.location.origin) return;
-  if (!event.data || event.data.type !== 'librus:map-ready') return;
+  if (!event.data || event.data.type !== 'doutrina:map-ready') return;
   var frame = document.getElementById('context-viewport');
   if (!frame || event.source !== frame.contentWindow) return;
   var mapQuery = normalizeMapQuery(event.data.query || '');
@@ -2581,7 +2597,7 @@ function bindDocumentListeners() {
   }
   if (mapQuery) pushMapGeocodeToFrame(mapQuery);
   try {
-   frame.contentWindow.postMessage({ type: 'librus:map-invalidate' }, window.location.origin);
+   frame.contentWindow.postMessage({ type: 'doutrina:map-invalidate' }, window.location.origin);
   } catch (e) { /* cross-origin */ }
  });
 
@@ -2608,45 +2624,52 @@ function syncAllInputClearButtons() {
 }
 
 function initInputClearButtons() {
- var clearLabel = 'Clear';
- document.querySelectorAll('input[type="text"]').forEach(function (input) {
-  if (input.dataset.clearBound === '1') return;
-  var wrap;
-  var host = input.parentElement;
-  if (host && host.classList.contains('reader-main-search-field')) {
-   wrap = host;
-   wrap.classList.add('input-clearable');
-  } else if (!input.closest('.input-clearable')) {
-   wrap = document.createElement('div');
-   wrap.className = 'input-clearable';
-   input.parentNode.insertBefore(wrap, input);
-   wrap.appendChild(input);
-  } else {
-   wrap = input.closest('.input-clearable');
-  }
-  if (!wrap || wrap.querySelector('.input-clear-btn')) {
-   input.dataset.clearBound = '1';
-   syncInputClearButton(input);
-   return;
-  }
-  var btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'input-clear-btn';
-  btn.setAttribute('aria-label', clearLabel);
-  btn.hidden = true;
-  btn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">&#xE14C;</span>';
-  btn.addEventListener('click', function () {
-   input.value = '';
-   input.dispatchEvent(new Event('input', { bubbles: true }));
-   input.dispatchEvent(new Event('change', { bubbles: true }));
-   syncInputClearButton(input);
-   input.focus();
+  document.querySelectorAll('input[type="text"]').forEach(function (input) {
+    if (input.dataset.clearBound === '1') return;
+    var wrap = input.closest('.input-clearable');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'input-clearable';
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(input);
+    }
+    if (wrap.querySelector('.input-clear-btn')) {
+      input.dataset.clearBound = '1';
+      syncInputClearButton(input);
+      return;
+    }
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'input-clear-btn';
+    btn.setAttribute('aria-label', 'Clear');
+    btn.textContent = '×';
+    btn.style.fontSize = '1.5rem';
+    btn.style.lineHeight = '1';
+    btn.style.fontWeight = 'normal';
+    btn.style.color = '#ccc';        // red
+    btn.style.border = 'none';
+    btn.style.background = 'transparent';
+    btn.style.cursor = 'pointer';
+    btn.style.padding = '0';
+    btn.style.width = '1.75rem';
+    btn.style.height = '1.75rem';
+    btn.style.display = 'flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+
+    btn.addEventListener('click', function () {
+      input.value = '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      input.focus();
+      syncInputClearButton(input);
+    });
+
+    wrap.appendChild(btn);
+    input.dataset.clearBound = '1';
+    syncInputClearButton(input);
   });
-  wrap.appendChild(btn);
-  input.addEventListener('input', function () { syncInputClearButton(input); });
-  input.dataset.clearBound = '1';
-  syncInputClearButton(input);
- });
 }
 
 function bindAllListeners() {
@@ -2754,14 +2777,48 @@ function bindAppUpdateListeners() {
  var actionBtn = document.getElementById('settings-update-action');
  if (!actionBtn) return;
  actionBtn.addEventListener('click', handleAppUpdateAction);
- window.addEventListener('librus:pwa-update-available', renderAppUpdateStatus);
- window.addEventListener('librus:pwa-update-cleared', renderAppUpdateStatus);
- window.addEventListener('librus:pwa-ready', renderAppUpdateStatus);
+ window.addEventListener('doutrina:pwa-update-available', renderAppUpdateStatus);
+ window.addEventListener('doutrina:pwa-update-cleared', renderAppUpdateStatus);
+ window.addEventListener('doutrina:pwa-ready', renderAppUpdateStatus);
 }
 
 function initAppUpdateStatus() {
  bindAppUpdateListeners();
  renderAppUpdateStatus();
+}
+
+async function chooseLibraryFolder() {
+  try {
+    libraryDirectoryHandle = await window.showDirectoryPicker({
+      mode: 'readwrite',
+      startIn: 'documents'
+    });
+    localStorage.setItem(LIBRARY_DIR_KEY, 'granted');
+    alert('✅ Google Drive folder selected!\n\nNotes will be saved as sidecar files (bookid-notes.jsonld) and sync across devices.');
+    return true;
+  } catch (err) {
+    console.warn('Folder selection cancelled', err);
+    return false;
+  }
+}
+
+async function saveNotesToLocalFolder(bookId) {
+  if (!bookId || !libraryDirectoryHandle || !window.LibrusAnnotations) return false;
+  const annotations = LibrusAnnotations.exportBookAnnotations(bookId);
+  if (!annotations || annotations.length === 0) return false;
+
+  try {
+    const fileName = `${bookId}-notes.jsonld`;
+    const fileHandle = await libraryDirectoryHandle.getFileHandle(fileName, { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(JSON.stringify(annotations, null, 2));
+    await writable.close();
+    console.log(`💾 Notes saved to Google Drive: ${fileName}`);
+    return true;
+  } catch (e) {
+    console.warn('Failed to save notes to Google Drive', e);
+    return false;
+  }
 }
 
 // =========================================================================
@@ -2845,7 +2902,7 @@ function currentBookTitleForShare() {
  var book = lastOpenedBookId ? findBookById(lastOpenedBookId) : null;
  if (book && book.title) return book.title;
  var titleEl = document.getElementById('reader-title');
- return titleEl && titleEl.textContent ? titleEl.textContent.trim() : (lastOpenedBookId || 'librus');
+ return titleEl && titleEl.textContent ? titleEl.textContent.trim() : (lastOpenedBookId || 'doutrina');
 }
 
 function buildAnnotationShareText(annotation) {
@@ -2979,15 +3036,25 @@ function renderNotesList() {
  });
 }
 
-function createNotesIconButton(iconHtml, title, extraClass, filled) {
- var btn = document.createElement('button');
- btn.type = 'button';
- btn.className = 'icon-btn' + (extraClass ? ' ' + extraClass : '');
- btn.title = title;
- btn.setAttribute('aria-label', title);
- var glyphClass = filled ? 'material-symbols-outlined icon-glyph-filled' : 'material-symbols-outlined';
- btn.innerHTML = '<span class="' + glyphClass + '" aria-hidden="true">' + iconHtml + '</span>';
- return btn;
+function createNotesIconButton(iconPath, title, extraClass, filled) {
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'icon-btn' + (extraClass ? ' ' + extraClass : '');
+  btn.title = title;
+  btn.setAttribute('aria-label', title);
+
+  var img = document.createElement('img');
+  img.src = 'icons/' + iconPath.replace(/^icons\//, '');  // ensure leading slash
+  img.alt = title;
+  img.title = title;
+  img.setAttribute('aria-hidden', 'true');
+  img.setAttribute('role', 'img');
+  img.width = 24;
+  img.height = 24;
+  img.className = 'icon-btn-glyph';
+
+  btn.appendChild(img);
+  return btn;
 }
 
 function buildAnnotationCard(annotation, replies) {
@@ -3011,11 +3078,11 @@ function buildAnnotationCard(annotation, replies) {
  }
  var actions = document.createElement('div');
  actions.className = 'reader-notes-card-actions';
- var jumpBtn = createNotesIconButton('&#xE244;', 'Go to passage', '', true);
+ var jumpBtn = createNotesIconButton('quote.svg', 'Go to passage', '', true);
  jumpBtn.addEventListener('click', function () {
   LibrusAnnotations.scrollToAnnotation(notesViewport(), annotation);
  });
- var replyBtn = createNotesIconButton('&#xE15E;', 'Reply', 'icon-btn-reply');
+var replyBtn = createNotesIconButton('reply.svg', 'Reply', 'icon-btn-reply');
  replyBtn.addEventListener('click', function () {
   notesReplyParentId = annotation.id;
   clearNotesSelectionCache();
@@ -3028,12 +3095,11 @@ function buildAnnotationCard(annotation, replies) {
   if (cancelReplyBtn) cancelReplyBtn.classList.remove('is-hidden');
   renderNotesSelectionPreview();
  });
- var shareBtn = createNotesIconButton('&#xE80D;', 'Share note: sends the passage and comment via message, email, or another app', 'icon-btn-share');
+var shareBtn = createNotesIconButton('share.svg', 'Share note', 'icon-btn-share');
  shareBtn.addEventListener('click', function () {
   shareAnnotation(annotation);
  });
- var deleteBtn = createNotesIconButton('&#xE872;', 'Delete note', 'icon-btn-danger');
- deleteBtn.addEventListener('click', function () {
+var deleteBtn = createNotesIconButton('delete.svg', 'Delete note', 'icon-btn-danger'); deleteBtn.addEventListener('click', function () {
   if (!lastOpenedBookId || !confirm('Delete this note and its replies?')) return;
   currentBookAnnotations = LibrusAnnotations.removeAnnotation(lastOpenedBookId, annotation.id);
   if (notesReplyParentId === annotation.id) notesReplyParentId = null;
@@ -3091,8 +3157,10 @@ function saveNoteFromCompose(motivation) {
   var liveSelection = window.getSelection();
   if (isSelectionInReader(liveSelection)) {
    sectionId = sectionIdFromSelection(liveSelection);
+   saveNotesToLocalFolder(lastOpenedBookId);
   }
  }
+ 
  var annotation = LibrusAnnotations.createAnnotation({
   bookId: lastOpenedBookId,
   quote: quote || { exact: '', prefix: '', suffix: '', start: 0, end: 0 },
@@ -3178,9 +3246,7 @@ async function initApp() {
  syncAllInputClearButtons();
  syncSettingsBuildLabel();
  changeTheme(settings.theme, true);
- syncFaviconForTheme();
  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
-  if ((settings.theme || 'system') === 'system') syncFaviconForTheme();
  });
  applyReaderFontScale();
  updateContextLookupControls();
@@ -3224,3 +3290,37 @@ document.querySelectorAll('.book-card').forEach(card => {
     toggleGlobalMode(); // switch to Reader view
   });
 });
+
+async function chooseLibraryFolder() {
+  try {
+    libraryDirectoryHandle = await window.showDirectoryPicker({
+      mode: 'readwrite',
+      startIn: 'documents'
+    });
+    localStorage.setItem(LIBRARY_DIR_KEY, 'granted');
+    alert('Library folder selected! Notes will be saved as sidecar files (*.jsonld) next to books.');
+    return true;
+  } catch (err) {
+    console.warn('Folder selection cancelled', err);
+    return false;
+  }
+}
+
+async function saveNotesToLocalFolder(bookId) {
+  if (!bookId || !libraryDirectoryHandle || !window.LibrusAnnotations) return false;
+  const annotations = LibrusAnnotations.exportBookAnnotations(bookId);
+  if (!annotations || annotations.length === 0) return false;
+
+  try {
+    const fileName = `${bookId}-notes.jsonld`;
+    const fileHandle = await libraryDirectoryHandle.getFileHandle(fileName, { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(JSON.stringify(annotations, null, 2));
+    await writable.close();
+    console.log(`Notes saved to disk: ${fileName}`);
+    return true;
+  } catch (e) {
+    console.warn('Failed to save notes to disk', e);
+    return false;
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "files": [
+    "ceu.md",
+    "ese.md",
+    "gen.md",
+    "lde.md",
+    "ldm.md"
+  ],
+  "entries": {
+    "ceu.md": {
+      "title": "O Céu e o Inferno",
+      "author": "Allan Kardec",
+      "color": "orangered",
+      "order": 4,
+      "lang": "pt-BR"
+    },
+    "ese.md": {
+      "title": "O Evangelho segundo o Espiritismo",
+      "author": "Allan Kardec",
+      "color": "lightseagreen",
+      "order": 3,
+      "lang": "pt-BR"
+    },
+    "gen.md": {
+      "title": "A Gênese",
+      "author": "Allan Kardec",
+      "color": "green",
+      "order": 5,
+      "lang": "pt-BR"
+    },
+    "lde.md": {
+      "title": "O Livro dos Espíritos",
+      "author": "Allan Kardec",
+      "color": "dodgerblue",
+      "order": 1,
+      "lang": "pt-BR"
+    },
+    "ldm.md": {
+      "title": "O Livro dos Médiuns",
+      "author": "Allan Kardec",
+      "color": "purple",
+      "order": 2,
+      "lang": "pt-BR"
+    }
+  }
+}

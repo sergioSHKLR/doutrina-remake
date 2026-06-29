@@ -272,11 +272,11 @@
    window.addEventListener('message', function (event) {
     if (event.origin !== window.location.origin) return;
     if (!event.data) return;
-    if (event.data.type === 'librus:map-invalidate') {
+    if (event.data.type === 'doutrina:map-invalidate') {
      scheduleMapRefresh();
      return;
     }
-    if (event.data.type === 'librus:map-place') {
+    if (event.data.type === 'doutrina:map-place') {
      var lat = parseFloat(event.data.lat);
      var lon = parseFloat(event.data.lon);
      if (isNaN(lat) || isNaN(lon)) return;
@@ -292,7 +292,7 @@
    scheduleMapRefresh();
    if (inParentFrame) {
     if (query) setStatus('Searching\u2026');
-    window.parent.postMessage({ type: 'librus:map-ready', query: query }, window.location.origin);
+    window.parent.postMessage({ type: 'doutrina:map-ready', query: query }, window.location.origin);
    } else if (!applyPresetCoords() && query) {
     requestAnimationFrame(function () {
      scheduleMapRefresh();

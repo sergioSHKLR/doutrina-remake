@@ -1,26 +1,20 @@
 /* Librus service worker | V31-260620a/u — bump CACHE_VERSION on each deploy. */
-const CACHE_VERSION = 'librus-v31-r84';
+const CACHE_VERSION = 'doutrina-v31-r84';
 
 const SHELL_ASSETS = [
   './index.html',
   './js/main.js',
   './js/annotations.js',
   './pwa/pwa.js',
-  './styles/style.css',
+  './styles/layout.css',
+  './styles/fonts.css',
+  './styles/colors.css',
   './manifest.webmanifest',
   './pages/context-placeholder.html',
   './pages/map.html',
-  './fonts/MaterialSymbolsOutlined.woff2',
-  './fonts/RobotoSlab-latin.woff2',
-  './fonts/RobotoSlab-latin-ext.woff2',
-  './fonts/ZenKurenaido-latin.woff2',
-  './fonts/ZenKurenaido-latin-ext.woff2',
   './books/manifest.json',
-  './icons/pwa/icon-192.png',
-  './icons/pwa/icon-512.png',
-  './icons/pwa/screenshot-wide.png',
-  './icons/pwa/screenshot-narrow.png',
-  './sw.js'
+  './icons/online.svg',
+  './icons/offline.svg',
 ];
 
 function stashInCache(cacheName, request, response) {
@@ -59,7 +53,7 @@ function fetchGeocode(query) {
   headers: {
    'Accept': 'application/json',
    'Accept-Language': 'en',
-   'User-Agent': 'LibrusZero/1.0 (map lookup; contact: https://librus.app)'
+   'User-Agent': 'LibrusZero/1.0 (map lookup; contact: https://doutrina.app)'
   }
  }).then(function (response) {
   return response.text().then(function (body) {

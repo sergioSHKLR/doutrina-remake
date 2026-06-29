@@ -1,6 +1,6 @@
-/* Doutrina PWA | Cleaned V31-260620a — registration + update handling */
+/* Librus PWA | Cleaned V31-260620a — registration + update handling */
 (function () {
-  var APP_NAME = 'DOUTRINA';
+  var APP_NAME = 'LIBRUS';
   var APP_VERSION = 'v.31t';
   var BUILD_ID = 'v31-r84';
   var waitingWorker = null;
@@ -70,7 +70,7 @@
   });
 
   // Public API
-  window.DoutrinaPwa = {
+  window.LibrusPwa = {
     appName: APP_NAME,
     versionLabel: APP_VERSION,
     buildId: BUILD_ID,
