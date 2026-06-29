@@ -1,4 +1,4 @@
-/* Librus service worker | V31-260620a/u — bump CACHE_VERSION on each deploy. */
+/* Doutrina service worker | V31-260620a/u — bump CACHE_VERSION on each deploy. */
 const CACHE_VERSION = 'doutrina-v31-r84';
 
 const SHELL_ASSETS = [
@@ -53,7 +53,7 @@ function fetchGeocode(query) {
   headers: {
    'Accept': 'application/json',
    'Accept-Language': 'en',
-   'User-Agent': 'LibrusZero/1.0 (map lookup; contact: https://doutrina.app)'
+   'User-Agent': 'DoutrinaZero/1.0 (map lookup; contact: https://doutrina.app)'
   }
  }).then(function (response) {
   return response.text().then(function (body) {

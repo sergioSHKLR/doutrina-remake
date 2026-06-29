@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "LIBRUS",
-  "short_name": "LIBRUS",
+  "name": "DOUTRINA",
+  "short_name": "DOUTRINA",
   "description": "A lightweight digital reading workspace with a local markdown library.",
   "start_url": "./",
   "scope": "./",

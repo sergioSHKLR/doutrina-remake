@@ -1,4 +1,4 @@
-// build.js - Auto-friendly MD → Manifest for Librus / Doutrina
+// build.js - Auto-friendly MD → Manifest for Doutrina / Doutrina
 // V32 - Preserves emojis, frontmatter, and large files
 const fs = require('fs');
 const path = require('path');

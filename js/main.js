@@ -15,8 +15,8 @@ const SCROLL_HIDE_OFFSET = 40;
 const READER_FONT_SCALE_CYCLE = [0.8125, 0.875, 0.9375, 1, 1.0625, 1.125, 1.1875, 1.25];
 const READER_FONT_SCALE_MIN = READER_FONT_SCALE_CYCLE[0];
 const READER_FONT_SCALE_MAX = READER_FONT_SCALE_CYCLE[READER_FONT_SCALE_CYCLE.length - 1];
-const LIBRUS_SITE_URL = 'https://doutrina.app';
-const LIBRUS_SHARE_ATTRIBUTION = 'Shared from ' + LIBRUS_SITE_URL;
+const DOUTRINA_SITE_URL = 'https://doutrina.app';
+const DOUTRINA_SHARE_ATTRIBUTION = 'Shared from ' + DOUTRINA_SITE_URL;
 const CONTEXT_PLACEHOLDER_URL = 'pages/context-placeholder.html';
 
 const DEFAULT_PROVIDERS = {
@@ -352,9 +352,9 @@ function handleSettingsOverlayClickOut(event) {
 }
 
 function syncBrandVersion() {
- var pwa = window.LibrusPwa;
+ var pwa = window.DoutrinaPwa;
  if (!pwa) return;
- var brandText = pwa.appName || 'LIBRUS';
+ var brandText = pwa.appName || 'DOUTRINA';
  var brandEl = document.querySelector('.library-topbar-brand-title');
  if (brandEl) brandEl.textContent = brandText;
  document.title = brandText;
@@ -364,7 +364,7 @@ function syncSettingsBuildLabel() {
  var label = document.getElementById('settings-build-label');
  var buildWrap = document.getElementById('settings-build-id');
  if (!label || !buildWrap) return;
- var pwa = window.LibrusPwa;
+ var pwa = window.DoutrinaPwa;
  var versionLabel = pwa && pwa.versionLabel ? pwa.versionLabel : '—';
  var deployId = pwa && pwa.buildId ? pwa.buildId : '—';
  label.textContent = versionLabel;
@@ -448,8 +448,8 @@ function exportSessionSnapshot() {
 
 function clearLocalCache() {
  if (!confirm('Clear all local cache? Hidden books, uploads, session, and offline files will be reset.')) return;
- var pwaClear = window.LibrusPwa
-  ? Promise.all([window.LibrusPwa.clearCaches(), window.LibrusPwa.unregister()])
+ var pwaClear = window.DoutrinaPwa
+  ? Promise.all([window.DoutrinaPwa.clearCaches(), window.DoutrinaPwa.unregister()])
   : Promise.resolve();
  pwaClear.finally(function () {
   localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -1351,8 +1351,8 @@ function loadBook(book, skipPersist) {
  readerHeadingIndex = [];
  renderTocList(parsed.toc);
  requestAnimationFrame(function () {
-  if (window.LibrusAnnotations && typeof LibrusAnnotations.invalidateViewportTextCache === 'function') {
-   LibrusAnnotations.invalidateViewportTextCache();
+  if (window.DoutrinaAnnotations && typeof DoutrinaAnnotations.invalidateViewportTextCache === 'function') {
+   DoutrinaAnnotations.invalidateViewportTextCache();
   }
   scheduleReaderHeadingIndexRebuild();
   refreshNotesPanel();
@@ -2030,7 +2030,7 @@ function tryWebShare(basePayloads, onFallback) {
 }
 
 function buildContextShareClipboardText(title, url) {
- return title + '\n' + url + shareLinkGap() + LIBRUS_SHARE_ATTRIBUTION;
+ return title + '\n' + url + shareLinkGap() + DOUTRINA_SHARE_ATTRIBUTION;
 }
 
 function shareContextArticle() {
@@ -2038,7 +2038,7 @@ function shareContextArticle() {
  if (!isShareableContextUrl(url)) return;
  var title = getContextArticleTitle();
  tryWebShare([
-  { title: title, url: url, text: shareLinkGap() + LIBRUS_SHARE_ATTRIBUTION },
+  { title: title, url: url, text: shareLinkGap() + DOUTRINA_SHARE_ATTRIBUTION },
   { url: url, text: buildContextShareClipboardText(title, url) },
   { url: url, title: title },
   { url: url }
@@ -2075,7 +2075,7 @@ function buildBookShareUrl(bookId) {
  var canonical = document.querySelector('link[rel="canonical"]');
  var root = canonical && canonical.href
   ? canonical.href.replace(/\/$/, '')
-  : LIBRUS_SITE_URL.replace(/\/$/, '');
+  : DOUTRINA_SITE_URL.replace(/\/$/, '');
  return root + '/#book=' + encodeURIComponent(bookId);
 }
 
@@ -2083,14 +2083,14 @@ function buildBookShareClipboardText(title, author, url) {
  var lines = [title];
  if (author) lines.push(author);
  lines.push(url);
- lines.push(LIBRUS_SHARE_ATTRIBUTION);
+ lines.push(DOUTRINA_SHARE_ATTRIBUTION);
  return lines.join('\n\n');
 }
 
 function buildBookShareWebText(author) {
  var lines = [];
  if (author) lines.push(author);
- lines.push(LIBRUS_SHARE_ATTRIBUTION);
+ lines.push(DOUTRINA_SHARE_ATTRIBUTION);
  return shareLinkGap() + lines.join('\n\n');
 }
 
@@ -2694,7 +2694,7 @@ var APP_UPDATE_ICONS = {
 };
 
 function getAppUpdateSnapshot() {
- var pwa = window.LibrusPwa;
+ var pwa = window.DoutrinaPwa;
  if (pwa && typeof pwa.getStatus === 'function') return pwa.getStatus();
  return {
   supported: 'serviceWorker' in navigator,
@@ -2755,13 +2755,13 @@ function handleAppUpdateAction() {
  var snapshot = getAppUpdateSnapshot();
  var state = resolveAppUpdateState(snapshot);
  if (state === 'update') {
-  if (window.LibrusPwa && typeof window.LibrusPwa.applyUpdate === 'function') {
-   window.LibrusPwa.applyUpdate();
+  if (window.DoutrinaPwa && typeof window.DoutrinaPwa.applyUpdate === 'function') {
+   window.DoutrinaPwa.applyUpdate();
   }
   return;
  }
- if (window.LibrusPwa && typeof window.LibrusPwa.checkForUpdates === 'function') {
-  window.LibrusPwa.checkForUpdates().then(function (hasUpdate) {
+ if (window.DoutrinaPwa && typeof window.DoutrinaPwa.checkForUpdates === 'function') {
+  window.DoutrinaPwa.checkForUpdates().then(function (hasUpdate) {
    renderAppUpdateStatus();
    if (!hasUpdate) {
     var detailEl = document.getElementById('settings-update-detail');
@@ -2803,8 +2803,8 @@ async function chooseLibraryFolder() {
 }
 
 async function saveNotesToLocalFolder(bookId) {
-  if (!bookId || !libraryDirectoryHandle || !window.LibrusAnnotations) return false;
-  const annotations = LibrusAnnotations.exportBookAnnotations(bookId);
+  if (!bookId || !libraryDirectoryHandle || !window.DoutrinaAnnotations) return false;
+  const annotations = DoutrinaAnnotations.exportBookAnnotations(bookId);
   if (!annotations || annotations.length === 0) return false;
 
   try {
@@ -2850,8 +2850,8 @@ function scheduleNotesSelectionSync() {
 function cacheNotesSelection() {
  var viewport = notesViewport();
  var selection = window.getSelection();
- if (!viewport || !window.LibrusAnnotations || !isSelectionInReader(selection)) return;
- var quote = LibrusAnnotations.buildTextQuoteFromSelection(viewport, selection);
+ if (!viewport || !window.DoutrinaAnnotations || !isSelectionInReader(selection)) return;
+ var quote = DoutrinaAnnotations.buildTextQuoteFromSelection(viewport, selection);
  if (!quote) return;
  lastNotesSelectionQuote = quote;
  lastNotesSectionId = sectionIdFromSelection(selection);
@@ -2865,8 +2865,8 @@ function clearNotesSelectionCache() {
 function getNotesSelectionQuote() {
  var viewport = notesViewport();
  var selection = window.getSelection();
- if (viewport && window.LibrusAnnotations && isSelectionInReader(selection)) {
-  var live = LibrusAnnotations.buildTextQuoteFromSelection(viewport, selection);
+ if (viewport && window.DoutrinaAnnotations && isSelectionInReader(selection)) {
+  var live = DoutrinaAnnotations.buildTextQuoteFromSelection(viewport, selection);
   if (live) {
    lastNotesSelectionQuote = live;
    lastNotesSectionId = sectionIdFromSelection(selection);
@@ -2906,12 +2906,12 @@ function currentBookTitleForShare() {
 }
 
 function buildAnnotationShareText(annotation) {
- var quote = LibrusAnnotations.getTextQuoteSelector(annotation);
+ var quote = DoutrinaAnnotations.getTextQuoteSelector(annotation);
  var lines = [];
  if (quote && quote.exact) lines.push('\u201C' + quote.exact + '\u201D');
  if (annotation.body && annotation.body.value) lines.push(annotation.body.value);
  lines.push('\u2014 ' + currentBookTitleForShare());
- lines.push(LIBRUS_SHARE_ATTRIBUTION);
+ lines.push(DOUTRINA_SHARE_ATTRIBUTION);
  return lines.join('\n\n');
 }
 
@@ -2921,7 +2921,7 @@ function copyAnnotationShareText(text) {
 }
 
 function buildAnnotationShareWebText(annotation) {
- var quote = LibrusAnnotations.getTextQuoteSelector(annotation);
+ var quote = DoutrinaAnnotations.getTextQuoteSelector(annotation);
  var lines = [];
  if (quote && quote.exact) lines.push('\u201C' + quote.exact + '\u201D');
  if (annotation.body && annotation.body.value) lines.push(annotation.body.value);
@@ -2937,9 +2937,9 @@ function shareAnnotation(annotation) {
  var canonical = document.querySelector('link[rel="canonical"]');
  var url = lastOpenedBookId
   ? buildBookShareUrl(lastOpenedBookId)
-  : (canonical && canonical.href ? canonical.href : LIBRUS_SITE_URL);
+  : (canonical && canonical.href ? canonical.href : DOUTRINA_SITE_URL);
  tryWebShare([
-  { title: shareTitle, url: url, text: webText + shareLinkGap() + LIBRUS_SHARE_ATTRIBUTION },
+  { title: shareTitle, url: url, text: webText + shareLinkGap() + DOUTRINA_SHARE_ATTRIBUTION },
   { title: shareTitle, text: clipboardText },
   { text: clipboardText, url: url },
   { text: clipboardText }
@@ -2999,7 +2999,7 @@ function annotationSearchText(annotation, quote) {
 function annotationMatchesNotesFilter(annotation, replies) {
  if (!notesFilterQuery) return true;
  var q = notesFilterQuery.toLowerCase();
- var quote = window.LibrusAnnotations ? LibrusAnnotations.getTextQuoteSelector(annotation) : null;
+ var quote = window.DoutrinaAnnotations ? DoutrinaAnnotations.getTextQuoteSelector(annotation) : null;
  if (annotationSearchText(annotation, quote).indexOf(q) !== -1) return true;
  return replies.filter(function (r) { return r.partOf === annotation.id; }).some(function (reply) {
   return annotationSearchText(reply, null).indexOf(q) !== -1;
@@ -3061,7 +3061,7 @@ function buildAnnotationCard(annotation, replies) {
  var card = document.createElement('article');
  card.className = 'reader-notes-annotation';
  card.dataset.annotationId = annotation.id;
- var quote = LibrusAnnotations.getTextQuoteSelector(annotation);
+ var quote = DoutrinaAnnotations.getTextQuoteSelector(annotation);
  var quoteEl = document.createElement('blockquote');
  quoteEl.className = 'reader-notes-quote';
  quoteEl.textContent = quote ? quote.exact : '(passage unavailable)';
@@ -3080,7 +3080,7 @@ function buildAnnotationCard(annotation, replies) {
  actions.className = 'reader-notes-card-actions';
  var jumpBtn = createNotesIconButton('quote.svg', 'Go to passage', '', true);
  jumpBtn.addEventListener('click', function () {
-  LibrusAnnotations.scrollToAnnotation(notesViewport(), annotation);
+  DoutrinaAnnotations.scrollToAnnotation(notesViewport(), annotation);
  });
 var replyBtn = createNotesIconButton('reply.svg', 'Reply', 'icon-btn-reply');
  replyBtn.addEventListener('click', function () {
@@ -3101,7 +3101,7 @@ var shareBtn = createNotesIconButton('share.svg', 'Share note', 'icon-btn-share'
  });
 var deleteBtn = createNotesIconButton('delete.svg', 'Delete note', 'icon-btn-danger'); deleteBtn.addEventListener('click', function () {
   if (!lastOpenedBookId || !confirm('Delete this note and its replies?')) return;
-  currentBookAnnotations = LibrusAnnotations.removeAnnotation(lastOpenedBookId, annotation.id);
+  currentBookAnnotations = DoutrinaAnnotations.removeAnnotation(lastOpenedBookId, annotation.id);
   if (notesReplyParentId === annotation.id) notesReplyParentId = null;
   refreshNotesPanel();
  });
@@ -3130,15 +3130,15 @@ var deleteBtn = createNotesIconButton('delete.svg', 'Delete note', 'icon-btn-dan
 
 function applyCurrentBookHighlights() {
  var viewport = notesViewport();
- if (!viewport || !window.LibrusAnnotations) return;
- LibrusAnnotations.applyHighlights(viewport, currentBookAnnotations);
+ if (!viewport || !window.DoutrinaAnnotations) return;
+ DoutrinaAnnotations.applyHighlights(viewport, currentBookAnnotations);
 }
 
 function refreshNotesPanel() {
- if (!lastOpenedBookId || !window.LibrusAnnotations) {
+ if (!lastOpenedBookId || !window.DoutrinaAnnotations) {
   currentBookAnnotations = [];
  } else {
-  currentBookAnnotations = LibrusAnnotations.loadForBook(lastOpenedBookId);
+  currentBookAnnotations = DoutrinaAnnotations.loadForBook(lastOpenedBookId);
  }
  renderNotesSelectionPreview();
  renderNotesList();
@@ -3146,7 +3146,7 @@ function refreshNotesPanel() {
 }
 
 function saveNoteFromCompose(motivation) {
- if (!lastOpenedBookId || !window.LibrusAnnotations) return;
+ if (!lastOpenedBookId || !window.DoutrinaAnnotations) return;
  var quote = getNotesSelectionQuote();
  if (!quote && !notesReplyParentId) return;
  var input = document.getElementById('notes-input');
@@ -3161,7 +3161,7 @@ function saveNoteFromCompose(motivation) {
   }
  }
  
- var annotation = LibrusAnnotations.createAnnotation({
+ var annotation = DoutrinaAnnotations.createAnnotation({
   bookId: lastOpenedBookId,
   quote: quote || { exact: '', prefix: '', suffix: '', start: 0, end: 0 },
   body: body,
@@ -3171,13 +3171,13 @@ function saveNoteFromCompose(motivation) {
  });
  if (notesReplyParentId && !quote) {
   var parent = currentBookAnnotations.find(function (a) { return a.id === notesReplyParentId; });
-  var parentQuote = parent ? LibrusAnnotations.getTextQuoteSelector(parent) : null;
+  var parentQuote = parent ? DoutrinaAnnotations.getTextQuoteSelector(parent) : null;
   if (parentQuote) {
    annotation.target.selector[0] = Object.assign({}, parentQuote);
    annotation.target.selector[1] = { type: 'FragmentSelector', value: sectionId || lastOpenedBookId };
   }
  }
- LibrusAnnotations.addAnnotation(lastOpenedBookId, annotation);
+ DoutrinaAnnotations.addAnnotation(lastOpenedBookId, annotation);
  notesReplyParentId = null;
  if (input) {
   input.value = '';
@@ -3189,8 +3189,8 @@ function saveNoteFromCompose(motivation) {
 }
 
 function exportCurrentBookAnnotations() {
- if (!lastOpenedBookId || !window.LibrusAnnotations) return;
- var payload = LibrusAnnotations.exportBookAnnotations(lastOpenedBookId);
+ if (!lastOpenedBookId || !window.DoutrinaAnnotations) return;
+ var payload = DoutrinaAnnotations.exportBookAnnotations(lastOpenedBookId);
  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/ld+json' });
  var url = URL.createObjectURL(blob);
  var link = document.createElement('a');
@@ -3307,8 +3307,8 @@ async function chooseLibraryFolder() {
 }
 
 async function saveNotesToLocalFolder(bookId) {
-  if (!bookId || !libraryDirectoryHandle || !window.LibrusAnnotations) return false;
-  const annotations = LibrusAnnotations.exportBookAnnotations(bookId);
+  if (!bookId || !libraryDirectoryHandle || !window.DoutrinaAnnotations) return false;
+  const annotations = DoutrinaAnnotations.exportBookAnnotations(bookId);
   if (!annotations || annotations.length === 0) return false;
 
   try {
@@ -3324,3 +3324,34 @@ async function saveNotesToLocalFolder(bookId) {
     return false;
   }
 }
+
+function checkOrientation() {
+  const alert = document.getElementById('portrait-alert');
+  if (!alert) return;
+
+  // Check if user already dismissed
+  if (localStorage.getItem('portraitAlertDismissed') === 'true') {
+    alert.classList.add('is-hidden');
+    return;
+  }
+
+  if (window.innerWidth < window.innerHeight && window.innerWidth < 768) {
+    alert.classList.remove('is-hidden');
+  } else {
+    alert.classList.add('is-hidden');
+  }
+}
+
+function hidePortraitAlert() {
+  const alert = document.getElementById('portrait-alert');
+  if (alert) alert.classList.add('is-hidden');
+  
+  // Remember dismissal
+  localStorage.setItem('portraitAlertDismissed', 'true');
+}
+
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('orientationchange', checkOrientation);
+
+// Run on load
+document.addEventListener('DOMContentLoaded', checkOrientation);

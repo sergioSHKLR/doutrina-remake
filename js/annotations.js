@@ -1,4 +1,4 @@
-/* Librus Annotations | V31-260618t/u — Web Annotation scaffold (local-first). */
+/* Doutrina Annotations | V31-260618t/u — Web Annotation scaffold (local-first). */
 (function (global) {
  var WA_CONTEXT = 'http://www.w3.org/ns/anno.jsonld';
  var STORAGE_KEY = 'doutrina_v31_annotations';
@@ -304,7 +304,7 @@
   return true;
  }
 
- global.LibrusAnnotations = {
+ global.DoutrinaAnnotations = {
   CONTEXT: WA_CONTEXT,
   buildTextQuoteFromSelection: buildTextQuoteFromSelection,
   invalidateViewportTextCache: invalidateViewportTextCache,

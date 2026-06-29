@@ -378,15 +378,15 @@ textarea:focus-visible {
    pointer-events: auto;
 }
 
-#librus-app.has-settings-overlay #library-body,
-#librus-app.has-settings-overlay .reader-layout {
+#doutrina-app.has-settings-overlay #library-body,
+#doutrina-app.has-settings-overlay .reader-layout {
    pointer-events: none;
 }
 
-#librus-app.has-settings-overlay #library-topbar,
-#librus-app.has-settings-overlay #reader-topbar,
-#librus-app.has-settings-overlay #library-settings.is-overlay,
-#librus-app.has-settings-overlay .settings-overlay-backdrop {
+#doutrina-app.has-settings-overlay #library-topbar,
+#doutrina-app.has-settings-overlay #reader-topbar,
+#doutrina-app.has-settings-overlay #library-settings.is-overlay,
+#doutrina-app.has-settings-overlay .settings-overlay-backdrop {
    pointer-events: auto;
 }
 
@@ -696,8 +696,8 @@ textarea:focus-visible {
 }
 
 .library-topbar-logo {
-   width: 1.625rem;
-   height: 1.625rem;
+width: 1.9rem;
+   height: 1.9rem;
    flex-shrink: 0;
    display: block;
    background-color: var(--topbar-fg);
@@ -707,9 +707,10 @@ textarea:focus-visible {
 
 .library-topbar-brand-title {
    font-weight: 700;
-   font-size: var(--font-size-lg);
+   font-size: 1.5rem;
    letter-spacing: -0.02em;
    color: var(--topbar-fg);
+      font-family: Tahoma, Verdana, sans;
 }
 
 .reader-topbar-title {
@@ -1617,12 +1618,12 @@ mark.reader-search-hit.is-current {
 }
 
 .md-block--spirit {
-   background: color-mix(in srgb, #4dacff 12%, var(--bg-primary));
+   background: color-mix(in srgb, #4dacff 32%, var(--bg-secondary));
    border-color: #4dacff;
 }
 
 .md-block--bible {
-   background: color-mix(in srgb, #d946ef 12%, var(--bg-primary));
+   background: color-mix(in srgb, #d946ef 32%, var(--bg-secondary));
    border-color: #d946ef;
 }
 
@@ -1637,7 +1638,7 @@ mark.reader-search-hit.is-current {
    border-left-width: 0;
    border: 0.0625rem solid var(--border-color);
    border-radius: var(--radius-md);
-   background: color-mix(in srgb, var(--text-muted) 6%, var(--bg-primary));
+   background: #eee;
 }
 
 .reader-content .md-block--center .md-block-title,
@@ -1652,7 +1653,7 @@ mark.reader-search-hit.is-current {
    border-left-width: 0;
    border: 0.0625rem solid var(--border-color);
    border-radius: var(--radius-md);
-   background: var(--bg-primary);
+   background: var(--bg-secondary);
 }
 
 .md-block--expand>summary {
@@ -1987,7 +1988,7 @@ mark.reader-search-hit.is-current {
    color: #b3261e;
 }
 
-::highlight(librus-annotations) {
+::highlight(doutrina-annotations) {
    background: color-mix(in srgb, #ffd54f 62%, transparent);
    color: inherit;
 }
@@ -2431,4 +2432,74 @@ mark.reader-search-hit.is-current {
 body.theme--light .topbar img[role="img"],
 body.theme--light .topbar .icon-btn img {
   filter: invert(1); /* Dark icons on light topbar */
+}
+
+
+.floating-github {
+   position: fixed;
+   bottom: 20px;
+   left: 20px;
+   z-index: 9999;
+   width: 48px;
+   height: 48px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   background: rgba(255, 255, 255, 0.9);
+   border-radius: 50%;
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+   transition: transform 0.2s ease, box-shadow 0.2s ease;
+   opacity: .5;
+}
+
+.floating-github:hover {
+   transform: scale(1.1);
+   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+   opacity: 1;
+}
+
+.portrait-alert {
+   position: fixed;
+   inset: 0;
+   background: rgba(0, 0, 0, 0.85);
+   z-index: 10000;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: white;
+   text-align: center;
+}
+
+.portrait-content {
+   max-width: 280px;
+}
+
+.device-animation {
+   margin-bottom: 1.5rem;
+   animation: rotateDevice 4s infinite ease-in-out;
+}
+
+.device {
+   width: 240px;
+   height: 240px;
+   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+}
+
+@keyframes rotateDevice {
+
+   0%,
+   100% {
+      transform: rotate(0deg);
+   }
+
+   50% {
+      transform: rotate(-90deg);
+   }
+}
+
+button.dismissable {
+   background-color: unset;
+   margin: 40px 0;
+   padding: 20px;
+   font-size: 24px;
 }
